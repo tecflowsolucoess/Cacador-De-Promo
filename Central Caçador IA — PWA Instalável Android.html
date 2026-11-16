@@ -1,0 +1,1678 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>Central Caçador IA — USD & Recompensas</title>
+  <meta name="description" content="Painel privado PWA para caçar oportunidades de IA que pagam em Dólar (PayPal e Wise) no Brasil, sem cartão de crédito." />
+  <meta name="theme-color" content="#0b0f19" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Caçador IA" />
+  <meta name="mobile-web-app-capable" content="yes" />
+
+  <!-- Placeholder dinâmico para o Web App Manifest (injetado via JS) -->
+  <link id="pwa-manifest-link" rel="manifest" href="" />
+  <link id="pwa-apple-icon" rel="apple-touch-icon" href="" />
+  <link id="pwa-favicon" rel="icon" type="image/svg+xml" href="" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Fonte Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            night: '#0b0f19',
+            card: '#111827',
+            cardhover: '#161f33',
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-slate-100 text-slate-900 dark:bg-night dark:text-slate-100 font-sans antialiased selection:bg-emerald-500/30 selection:text-emerald-200 overflow-x-hidden pb-20 lg:pb-0">
+
+  <!-- Toast Flutuante (Substitui alert/confirm) -->
+  <div id="toast" class="fixed top-4 right-4 z-[70] hidden items-center gap-3 rounded-2xl bg-slate-900/95 border border-emerald-500/50 px-4 py-3 text-xs sm:text-sm text-white shadow-2xl backdrop-blur-md">
+    <span class="flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+    <span id="toast-msg" class="font-medium">Ação concluída!</span>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- MODAL: INSTALAR COMO APP NO ANDROID (PWA)                 -->
+  <!-- ========================================================= -->
+  <div id="install-modal" class="fixed inset-0 z-[60] hidden items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+    <div class="w-full max-w-lg rounded-3xl bg-card border border-slate-700/80 shadow-2xl overflow-hidden animate-[fadeIn_0.2s_ease-out]">
+      <div class="p-5 sm:p-6 bg-gradient-to-r from-emerald-950/90 to-slate-900 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="h-11 w-11 rounded-2xl bg-emerald-500 text-slate-950 flex items-center justify-center font-extrabold text-lg shadow-lg shadow-emerald-500/30">
+            📲
+          </div>
+          <div>
+            <h3 class="text-base sm:text-lg font-extrabold text-white">Instalar no Android como App</h3>
+            <p class="text-xs text-emerald-300">Acesso direto na tela inicial • Sem barra de navegador</p>
+          </div>
+        </div>
+        <button type="button" id="close-install-modal" class="p-2 rounded-xl bg-slate-800/80 text-slate-300 hover:text-white">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="p-5 sm:p-6 space-y-5 max-h-[75vh] overflow-y-auto text-xs sm:text-sm">
+        <!-- Botão de Instalação Nativa (se suportado pelo navegador/host HTTPS) -->
+        <div id="native-install-box" class="hidden p-4 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 space-y-2.5">
+          <p class="text-emerald-200 font-semibold">Seu navegador Android está pronto para instalar o App nativamente:</p>
+          <button type="button" id="trigger-native-install" class="w-full py-3 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-sm shadow-lg transition">
+            ⚡ Instalar App Agora (1 Clique)
+          </button>
+        </div>
+
+        <!-- Método A: Direto no Chrome Android -->
+        <div class="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-emerald-400 text-sm">Método A — Atalho Instantâneo no Chrome Android</span>
+            <span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 text-[11px] font-bold">10 segundos</span>
+          </div>
+          <ol class="list-decimal list-inside space-y-1.5 text-slate-300 text-xs leading-relaxed">
+            <li>Baixe este arquivo (<code class="text-emerald-300">central_cacador_ia_pwa.html</code>) ou abra o link no <strong>Google Chrome</strong> do seu Android.</li>
+            <li>Toque nos <strong>3 pontinhos (⋮)</strong> no canto superior direito do Chrome.</li>
+            <li>Toque em <strong>"Adicionar à tela inicial"</strong> ou <strong>"Instalar aplicativo"</strong>.</li>
+            <li>Confirme o nome <strong>Caçador IA</strong> — o ícone aparecerá junto aos seus apps.</li>
+          </ol>
+        </div>
+
+        <!-- Método B: PWA Completo em Tela Cheia (Standalone) -->
+        <div class="p-4 rounded-2xl bg-slate-950/80 border border-blue-500/30 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-blue-400 text-sm">Método B — App Tela Cheia (Sem Barra do Chrome)</span>
+            <span class="px-2 py-0.5 rounded bg-blue-500/15 text-blue-300 text-[11px] font-bold">PWA Completo</span>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            O Android só ativa o modo <strong>PWA Standalone</strong> (tela cheia 100% igual a app nativo e funcionamento offline) quando o arquivo é aberto via link <strong>HTTPS</strong>. Você pode hospedar gratuitamente em 30 segundos:
+          </p>
+          <ol class="list-decimal list-inside space-y-1.5 text-slate-300 text-xs leading-relaxed">
+            <li>Salve este arquivo no celular com o nome exato <code class="text-blue-300">index.html</code>.</li>
+            <li>Acesse <a href="https://app.netlify.com/drop" target="_blank" rel="noopener noreferrer" class="text-blue-400 underline font-semibold">app.netlify.com/drop</a> ou <a href="https://tiiny.host" target="_blank" rel="noopener noreferrer" class="text-blue-400 underline font-semibold">tiiny.host</a> e arraste o arquivo.</li>
+            <li>Abra o link gerado no Chrome Android → toque em <strong>⋮ → Instalar aplicativo</strong>.</li>
+          </ol>
+        </div>
+
+        <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-200">
+          💡 <strong>Dica de Segurança:</strong> Antes de migrar do navegador para o ícone instalado na tela inicial, use a aba <strong>💾 Backup</strong> para exportar seu arquivo <code class="text-amber-300">.json</code> e importar dentro do app instalado!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- HEADER MOBILE (TOP BAR)                                   -->
+  <!-- ========================================================= -->
+  <header class="lg:hidden sticky top-0 z-40 bg-card/95 backdrop-blur-md border-b border-slate-800 px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-2.5">
+      <div class="h-9 w-9 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-slate-950 font-extrabold text-sm shadow-lg shadow-emerald-500/25">
+        $IA
+      </div>
+      <div>
+        <h1 class="text-sm font-extrabold text-white leading-tight">Caçador IA • USD</h1>
+        <p class="text-[11px] text-emerald-400 font-medium">PayPal & Wise • Brasil</p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button type="button" id="mobile-install-btn" class="px-3 py-2 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-xs font-bold flex items-center gap-1.5">
+        <span>📲 App</span>
+      </button>
+      <button type="button" id="mobile-theme-btn" aria-label="Alternar tema" class="p-2 rounded-xl bg-slate-800 text-slate-300 border border-slate-700">
+        🌓
+      </button>
+    </div>
+  </header>
+
+  <div class="flex min-h-screen max-w-full">
+    <!-- ========================================================= -->
+    <!-- SIDEBAR DESKTOP                                           -->
+    <!-- ========================================================= -->
+    <aside class="hidden lg:flex lg:fixed lg:inset-y-0 lg:left-0 lg:w-72 bg-card border-r border-slate-800 flex-col z-40">
+      <div class="p-5 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="h-10 w-10 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-slate-950 font-extrabold text-base shadow-lg shadow-emerald-500/25">
+            $IA
+          </div>
+          <div>
+            <span class="text-sm font-extrabold text-white block">Central Caçador IA</span>
+            <span class="text-[11px] text-emerald-400 font-medium block">PWA • PayPal & Wise</span>
+          </div>
+        </div>
+        <button type="button" id="desktop-theme-btn" title="Alternar Claro/Escuro" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">
+          🌓
+        </button>
+      </div>
+
+      <!-- Card Mini Resumo Financeiro no Sidebar -->
+      <div class="p-4 mx-4 mt-4 rounded-2xl bg-gradient-to-br from-emerald-950/70 to-slate-900 border border-emerald-500/30 space-y-1.5">
+        <div class="flex items-center justify-between text-[11px] text-emerald-300 font-semibold">
+          <span>Acumulado (USD)</span>
+          <span id="sidebar-brl-preview" class="text-slate-400">≈ R$ 0,00</span>
+        </div>
+        <div id="sidebar-usd-total" class="text-2xl font-extrabold text-white tracking-tight">$0.00</div>
+        <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+          <div id="sidebar-goal-bar" class="h-full bg-emerald-400 rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <!-- Navegação Principal (Abas de Ferramentas + Índice das 8 Seções) -->
+      <nav class="flex-1 overflow-y-auto p-4 space-y-1">
+        <p class="px-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">Ferramentas Ativas</p>
+
+        <button type="button" data-view="view-hunter" class="view-tab-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold bg-blue-500/15 text-blue-300 border border-blue-500/30 transition">
+          <span>🤖</span>
+          <span>Caçador IA (Ao Vivo)</span>
+        </button>
+
+        <button type="button" data-view="view-tracker" class="view-tab-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-300 hover:bg-slate-800 transition">
+          <span>💰</span>
+          <span>Rastreador USD → BRL</span>
+        </button>
+
+        <button type="button" data-view="view-importer" class="view-tab-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-300 hover:bg-slate-800 transition">
+          <span>📅</span>
+          <span>Importar Relatório 08:00</span>
+        </button>
+
+        <button type="button" data-view="view-routine" class="view-tab-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-300 hover:bg-slate-800 transition">
+          <span>⏰</span>
+          <span>Rotina & Alarme Pico EUA</span>
+        </button>
+
+        <button type="button" data-view="view-backup" class="view-tab-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-300 hover:bg-slate-800 transition">
+          <span>💾</span>
+          <span>Backup & Sincronizar JSON</span>
+        </button>
+
+        <div class="pt-3 pb-1">
+          <button type="button" data-view="view-dossier" class="view-tab-btn w-full flex items-center justify-between px-3 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 border border-emerald-500/25">
+            <span>📚 Dossiê Completo (8 Tópicos)</span>
+          </button>
+        </div>
+
+        <div class="space-y-0.5 pl-1">
+          <a href="#sec-1" data-jump="sec-1" class="dossier-jump flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-400 hover:text-white hover:bg-slate-800/70 transition">
+            <span class="text-blue-400 font-bold">1.</span><span class="truncate">Diagnóstico (Vídeo & Prints)</span>
+          </a>
+          <a href="#sec-2" data-jump="sec-2" class="dossier-jump flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-400 hover:text-white hover:bg-slate-800/70 transition">
+            <span class="text-blue-400 font-bold">2.</span><span class="truncate">Créditos API (Sem Cartão)</span>
+          </a>
+          <a href="#sec-3" data-jump="sec-3" class="dossier-jump flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-400 hover:text-white hover:bg-slate-800/70 transition">
+            <span class="text-emerald-400 font-bold">3.</span><span class="truncate">Plataformas que Pagam USD</span>
+          </a>
+          <a href="#sec-4" data-jump="sec-4" class="dossier-jump flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-400 hover:text-white hover:bg-slate-800/70 transition">
+            <span class="text-emerald-400 font-bold">4.</span><span class="truncate">Campanhas Tremendous</span>
+          </a>
+          <a href="#sec-5" data-jump="sec-5" class="dossier-jump flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-400 hover:text-white hover:bg-slate-800/70 transition">
+            <span class="text-emerald-400 font-bold">5.</span><span class="truncate">Monitoramento 08:00 BRT</span>
+          </a>
+          <a href="#sec-6" data-jump="sec-6" class="dossier-jump flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-400 hover:text-white hover:bg-slate-800/70 transition">
+            <span class="text-emerald-400 font-bold">6.</span><span class="truncate">Varredura 16/11/2026</span>
+          </a>
+          <a href="#sec-7" data-jump="sec-7" class="dossier-jump flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-400 hover:text-white hover:bg-slate-800/70 transition">
+            <span class="text-amber-400 font-bold">7.</span><span class="truncate">Guia Prático dscout</span>
+          </a>
+          <a href="#sec-8" data-jump="sec-8" class="dossier-jump flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-400 hover:text-white hover:bg-slate-800/70 transition">
+            <span class="text-rose-400 font-bold">8.</span><span class="truncate">Análise Alibaba & TokenPlus</span>
+          </a>
+        </div>
+      </nav>
+
+      <div class="p-4 border-t border-slate-800">
+        <button type="button" id="desktop-install-btn" class="w-full py-2.5 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs shadow-lg shadow-emerald-500/20 transition flex items-center justify-center gap-2">
+          <span>📲 Instalar App no Android</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- ========================================================= -->
+    <!-- CONTEÚDO PRINCIPAL                                        -->
+    <!-- ========================================================= -->
+    <main class="flex-1 lg:pl-72 w-full max-w-full">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8 space-y-6">
+
+        <!-- Banner Superior de Status & Atalhos Rápidos -->
+        <div class="rounded-2xl bg-card border border-slate-800 p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-lg">
+          <div class="space-y-1">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[11px] font-bold">🇧🇷 Brasil Ativo</span>
+              <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[11px] font-semibold">✓ PayPal</span>
+              <span class="px-2.5 py-0.5 rounded-full bg-sky-500/15 border border-sky-500/30 text-sky-300 text-[11px] font-semibold">✓ Wise</span>
+              <span class="px-2.5 py-0.5 rounded-full bg-rose-500/15 border border-rose-500/30 text-rose-300 text-[11px] font-semibold line-through">Stripe</span>
+            </div>
+            <h2 class="text-lg sm:text-xl font-extrabold text-white">Central Caçador IA — USD & Recompensas</h2>
+          </div>
+
+          <!-- Barra de Navegação Horizontal Rápida (Desktop & Tablet) -->
+          <div class="flex flex-wrap gap-1.5">
+            <button type="button" data-view="view-dossier" class="view-pill-btn active px-3 py-2 rounded-xl text-xs font-bold bg-emerald-500 text-slate-950 transition">
+              📚 Dossiê (8)
+            </button>
+            <button type="button" data-view="view-hunter" class="view-pill-btn px-3 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700 transition">
+              🤖 Caçador IA
+            </button>
+            <button type="button" data-view="view-tracker" class="view-pill-btn px-3 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700 transition">
+              💰 Ganhos USD
+            </button>
+            <button type="button" data-view="view-importer" class="view-pill-btn px-3 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700 transition">
+              📅 Importar 08:00
+            </button>
+            <button type="button" data-view="view-routine" class="view-pill-btn px-3 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700 transition">
+              ⏰ Rotina
+            </button>
+            <button type="button" data-view="view-backup" class="view-pill-btn px-3 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700 transition">
+              💾 Backup
+            </button>
+          </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- VIEW 1: CAÇADOR IA AO VIVO (GEMINI + GOOGLE SEARCH)       -->
+        <!-- ========================================================= -->
+        <section id="view-hunter" class="app-view hidden space-y-5">
+          <div class="rounded-2xl bg-card border border-blue-500/30 p-5 sm:p-6 shadow-xl space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+              <div>
+                <span class="inline-flex items-center gap-1.5 text-xs font-bold text-blue-400 uppercase tracking-wider">
+                  <span class="w-2 h-2 rounded-full bg-blue-400 animate-ping"></span>
+                  Motor Gemini 3 Flash + Google Search em Tempo Real
+                </span>
+                <h3 class="text-lg sm:text-xl font-extrabold text-white mt-1">🤖 Caçador IA (Ao Vivo)</h3>
+                <p class="text-xs text-slate-400">Busca campanhas ativas hoje filtrando estritamente: Brasil + PayPal/Wise/Tremendous + Zero Cartão/Stripe.</p>
+              </div>
+              <button type="button" id="clear-chat-btn" class="self-start sm:self-auto px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 border border-slate-700">
+                Limpar Conversa
+              </button>
+            </div>
+
+            <!-- Prompts Rápidos de 1 Clique -->
+            <div class="flex flex-wrap gap-2">
+              <button type="button" data-prompt="Procure nas últimas 48 horas no Reddit (r/beermoneyglobal, r/BeerMoneyBrasil) e sites de pesquisa por novas campanhas relâmpago estilo Minute Data pagando em dólar via Tremendous ou PayPal para brasileiros, sem cartão." class="hunter-preset px-3 py-2 rounded-xl bg-blue-500/15 hover:bg-blue-500/25 text-blue-300 border border-blue-500/30 text-xs font-semibold transition text-left">
+                ⚡ Buscar campanhas estilo Minute Data hoje
+              </button>
+              <button type="button" data-prompt="Quais projetos de gravação de voz em português ou avaliação de IA estão recrutando brasileiros hoje com pagamento via PayPal ou Wise (sem Stripe)?" class="hunter-preset px-3 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-xs font-semibold transition text-left">
+                🎙️ Vagas de áudio/IA PT-BR (PayPal/Wise)
+              </button>
+              <button type="button" data-prompt="Verifique se há novos programas de créditos gratuitos de API de IA lançados recentemente que não pedem cartão de crédito." class="hunter-preset px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-semibold transition text-left">
+                🔑 Novos créditos de API sem cartão
+              </button>
+            </div>
+
+            <!-- Área de Mensagens do Caçador IA -->
+            <div id="hunter-messages" class="space-y-4 max-h-[55vh] overflow-y-auto p-4 rounded-2xl bg-night border border-slate-800">
+              <div class="flex items-start gap-3">
+                <div class="h-8 w-8 rounded-xl bg-blue-500/20 border border-blue-500/40 text-blue-400 flex items-center justify-center font-bold text-xs shrink-0">IA</div>
+                <div class="text-xs sm:text-sm text-slate-300 space-y-2 leading-relaxed">
+                  <p><strong class="text-white">Agente Caçador pronto!</strong> Digite o que deseja procurar ou clique em um dos botões acima. Toda busca já aplica suas regras obrigatórias:</p>
+                  <ul class="list-disc list-inside text-xs text-slate-400 space-y-0.5">
+                    <li>Elegível para residentes no <strong>Brasil</strong>;</li>
+                    <li>Pagamento via <strong>PayPal, Wise ou Tremendous</strong> (Stripe bloqueado);</li>
+                    <li>Zero cartão de crédito e zero depósito inicial.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- Formulário de Envio -->
+            <form id="hunter-form" class="flex flex-col sm:flex-row gap-2.5">
+              <input
+                type="text"
+                id="hunter-input"
+                required
+                placeholder="Ex: Procure estudos pagos no Respondent ou pesquisas via Tremendous abertas hoje..."
+                class="flex-1 rounded-xl bg-night border border-slate-700 px-4 py-3 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
+              />
+              <button type="submit" id="hunter-submit-btn" class="px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-lg shadow-blue-900/30 transition flex items-center justify-center gap-2 shrink-0">
+                <span>🔍 Caçar Agora</span>
+              </button>
+            </form>
+          </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- VIEW 2: RASTREADOR DE GANHOS & SAQUES (USD -> BRL)        -->
+        <!-- ========================================================= -->
+        <section id="view-tracker" class="app-view hidden space-y-5">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="rounded-2xl bg-card border border-emerald-500/30 p-4 space-y-1">
+              <span class="text-xs text-slate-400 font-medium">Total Ganho (USD)</span>
+              <div id="stat-total-usd" class="text-2xl font-extrabold text-emerald-400">$0.00</div>
+              <span id="stat-total-brl" class="text-xs text-slate-400 block">≈ R$ 0,00</span>
+            </div>
+            <div class="rounded-2xl bg-card border border-slate-800 p-4 space-y-1">
+              <span class="text-xs text-slate-400 font-medium">Já Sacado (PayPal / Wise)</span>
+              <div id="stat-withdrawn-usd" class="text-2xl font-extrabold text-white">$0.00</div>
+              <span class="text-xs text-emerald-400 block">Dinheiro na conta</span>
+            </div>
+            <div class="rounded-2xl bg-card border border-slate-800 p-4 space-y-1">
+              <span class="text-xs text-slate-400 font-medium">Pendente / Aprovado</span>
+              <div id="stat-pending-usd" class="text-2xl font-extrabold text-amber-400">$0.00</div>
+              <span class="text-xs text-slate-400 block">Aguardando liberação</span>
+            </div>
+            <div class="rounded-2xl bg-card border border-slate-800 p-4 space-y-2">
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-slate-400 font-medium">Meta Mensal (USD)</span>
+                <button type="button" id="edit-goal-btn" class="text-emerald-400 underline font-semibold">Editar</button>
+              </div>
+              <div class="flex items-baseline justify-between">
+                <span id="stat-goal-pct" class="text-xl font-extrabold text-white">0%</span>
+                <span id="stat-goal-target" class="text-xs text-slate-400">de $200.00</span>
+              </div>
+              <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                <div id="stat-goal-bar" class="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Formulário de Novo Registro + Cotação BRL -->
+          <div class="rounded-2xl bg-card border border-slate-800 p-5 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <h3 class="text-base font-extrabold text-white">💰 Registrar Novo Ganho / Saque</h3>
+              <div class="flex items-center gap-2 text-xs">
+                <label for="usd-brl-rate" class="text-slate-400">Cotação USD → BRL:</label>
+                <input type="number" step="0.01" id="usd-brl-rate" value="5.75" class="w-20 rounded-lg bg-night border border-slate-700 px-2.5 py-1 text-white font-bold text-right" />
+              </div>
+            </div>
+
+            <form id="earning-form" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+              <input type="text" id="earn-platform" required placeholder="Plataforma (ex: Prolific, Babel)" class="rounded-xl bg-night border border-slate-700 px-3.5 py-2.5 text-sm text-white placeholder-slate-500" />
+              <input type="number" step="0.01" min="0.01" id="earn-amount" required placeholder="Valor em USD (ex: 15.00)" class="rounded-xl bg-night border border-slate-700 px-3.5 py-2.5 text-sm text-white placeholder-slate-500" />
+              <select id="earn-method" class="rounded-xl bg-night border border-slate-700 px-3.5 py-2.5 text-sm text-white">
+                <option value="PayPal">PayPal</option>
+                <option value="Wise">Wise</option>
+                <option value="Tremendous → PayPal">Tremendous → PayPal</option>
+                <option value="Payoneer / Outro">Payoneer / Outro</option>
+              </select>
+              <select id="earn-status" class="rounded-xl bg-night border border-slate-700 px-3.5 py-2.5 text-sm text-white">
+                <option value="Pendente">⏳ Pendente</option>
+                <option value="Aprovado">✅ Aprovado</option>
+                <option value="Sacado">💸 Sacado</option>
+              </select>
+              <button type="submit" class="rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-sm py-2.5 px-4 transition">
+                + Adicionar
+              </button>
+            </form>
+
+            <!-- Tabela / Lista de Ganhos -->
+            <div id="earnings-list" class="space-y-2 pt-2">
+              <!-- Renderizado via JS -->
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- VIEW 3: IMPORTADOR DE RELATÓRIOS AGENDADOS (08:00 BRT)    -->
+        <!-- ========================================================= -->
+        <section id="view-importer" class="app-view hidden space-y-5">
+          <div class="rounded-2xl bg-card border border-slate-800 p-5 sm:p-6 space-y-4">
+            <div>
+              <h3 class="text-lg font-extrabold text-white">📅 Importar Relatório Agendado (08:00 BRT)</h3>
+              <p class="text-xs sm:text-sm text-slate-400 mt-1">
+                Todos os dias às 08:00 o Gemini envia o relatório diário na aba <strong>Scheduled</strong>. Cole o texto do relatório aqui abaixo para extrair automaticamente os links e salvar no seu painel.
+              </p>
+            </div>
+
+            <textarea
+              id="report-paste-area"
+              rows="6"
+              placeholder="Cole aqui o texto completo do relatório diário recebido às 08:00 no Gemini..."
+              class="w-full rounded-2xl bg-night border border-slate-700 p-4 text-xs sm:text-sm text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none"
+            ></textarea>
+
+            <div class="flex flex-wrap gap-3">
+              <button type="button" id="parse-report-btn" class="px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-sm transition">
+                ⚡ Extrair e Salvar Ofertas no Painel
+              </button>
+              <button type="button" id="clear-report-area" class="px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold">
+                Limpar Texto
+              </button>
+            </div>
+
+            <!-- Ofertas Importadas Salvas -->
+            <div class="pt-4 border-t border-slate-800 space-y-3">
+              <div class="flex items-center justify-between">
+                <h4 class="text-sm font-bold text-white">📌 Oportunidades Salvas / Importadas por Você</h4>
+                <span id="custom-opps-count" class="text-xs text-emerald-400 font-bold">0 salvas</span>
+              </div>
+              <div id="custom-opps-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                <!-- Renderizado via JS -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- VIEW 4: ROTINA DIÁRIA & ALARME PICO EUA/BR                -->
+        <!-- ========================================================= -->
+        <section id="view-routine" class="app-view hidden space-y-5">
+          <div class="rounded-2xl bg-card border border-amber-500/30 p-5 sm:p-6 space-y-5">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+              <div>
+                <h3 class="text-lg font-extrabold text-white">⏰ Rotina Diária & Janela de Pico EUA/Brasil</h3>
+                <p class="text-xs text-slate-400">Os estudos do Respondent.io e missões do dscout esgotam em minutos. Siga a rotina abaixo:</p>
+              </div>
+              <button type="button" id="enable-browser-notif-btn" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs transition shrink-0">
+                🔔 Ativar Lembrete no Navegador
+              </button>
+            </div>
+
+            <!-- Relógio em Tempo Real Brasília vs Nova York -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="p-4 rounded-2xl bg-night border border-slate-800 flex items-center justify-between">
+                <div>
+                  <span class="text-xs text-slate-400 block">Horário Atual (Brasília - BRT)</span>
+                  <span id="clock-brt" class="text-2xl font-extrabold text-white font-mono">--:--:--</span>
+                </div>
+                <span id="peak-status-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-slate-800 text-slate-300">Verificando...</span>
+              </div>
+              <div class="p-4 rounded-2xl bg-night border border-slate-800">
+                <span class="text-xs text-slate-400 block">Janela de Ouro para Pesquisas</span>
+                <span class="text-lg font-extrabold text-emerald-400 block mt-0.5">11:00 às 18:00 (BRT)</span>
+                <span class="text-[11px] text-slate-400">Horário comercial nos EUA (liberação de screeners)</span>
+              </div>
+            </div>
+
+            <!-- Checklist Diário -->
+            <div class="space-y-2.5">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Checklist Operacional Diário</span>
+                <button type="button" id="reset-daily-routine" class="text-xs text-amber-400 underline">Resetar para novo dia</button>
+              </div>
+
+              <label class="flex items-start gap-3 p-3.5 rounded-xl bg-night border border-slate-800 cursor-pointer">
+                <input type="checkbox" data-check-id="routine-0800" class="progress-checkbox mt-0.5 h-4 w-4 rounded text-emerald-500 bg-slate-900 border-slate-600" />
+                <div class="text-xs">
+                  <span class="font-bold text-white block">08:00 BRT — Conferir Relatório Automático no Gemini (aba Scheduled)</span>
+                  <span class="text-slate-400">Verificar se surgiu alguma campanha relâmpago estilo Minute Data nas últimas 24h.</span>
+                </div>
+              </label>
+
+              <label class="flex items-start gap-3 p-3.5 rounded-xl bg-night border border-slate-800 cursor-pointer">
+                <input type="checkbox" data-check-id="routine-1130" class="progress-checkbox mt-0.5 h-4 w-4 rounded text-emerald-500 bg-slate-900 border-slate-600" />
+                <div class="text-xs">
+                  <span class="font-bold text-white block">11:30 BRT — Checar Respondent.io (filtro Brazil) & dscout (aba Explore)</span>
+                  <span class="text-slate-400">Responder imediatamente aos questionários curtos de 5 perguntas antes que a cota feche.</span>
+                </div>
+              </label>
+
+              <label class="flex items-start gap-3 p-3.5 rounded-xl bg-night border border-slate-800 cursor-pointer">
+                <input type="checkbox" data-check-id="routine-1500" class="progress-checkbox mt-0.5 h-4 w-4 rounded text-emerald-500 bg-slate-900 border-slate-600" />
+                <div class="text-xs">
+                  <span class="font-bold text-white block">15:00 BRT — Rodar tarefas contínuas (Babel Audio / Prolific / Mercor)</span>
+                  <span class="text-slate-400">Executar gravações de voz em português ou avaliações de IA pagando por hora em USD.</span>
+                </div>
+              </label>
+
+              <label class="flex items-start gap-3 p-3.5 rounded-xl bg-night border border-slate-800 cursor-pointer">
+                <input type="checkbox" data-check-id="routine-1800" class="progress-checkbox mt-0.5 h-4 w-4 rounded text-emerald-500 bg-slate-900 border-slate-600" />
+                <div class="text-xs">
+                  <span class="font-bold text-white block">18:00 BRT — Conferir e-mails da Tremendous e registrar ganhos</span>
+                  <span class="text-slate-400">Resgatar links de <code class="text-emerald-300">rewards@reward.tremendous.com</code> direto no PayPal (sem VPN).</span>
+                </div>
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- VIEW 5: BACKUP & SINCRONIZAÇÃO JSON                       -->
+        <!-- ========================================================= -->
+        <section id="view-backup" class="app-view hidden space-y-5">
+          <div class="rounded-2xl bg-card border border-slate-800 p-5 sm:p-6 space-y-4">
+            <div>
+              <h3 class="text-lg font-extrabold text-white">💾 Backup & Sincronização de Dados (.JSON)</h3>
+              <p class="text-xs sm:text-sm text-slate-400 mt-1">
+                Exporte todos os seus cadastros marcados, ganhos em USD, oportunidades importadas e notas para um arquivo único. Útil ao instalar o PWA na tela inicial do Android ou trocar de celular.
+              </p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="p-4 rounded-2xl bg-night border border-slate-800 space-y-3">
+                <span class="font-bold text-emerald-400 text-sm block">1. Exportar Backup Completo</span>
+                <p class="text-xs text-slate-400">Baixa um arquivo <code class="text-emerald-300">backup_cacador_ia.json</code> com todo o seu progresso atual.</p>
+                <button type="button" id="export-json-btn" class="w-full py-3 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs transition">
+                  ⬇️ Baixar Arquivo de Backup (.JSON)
+                </button>
+              </div>
+
+              <div class="p-4 rounded-2xl bg-night border border-slate-800 space-y-3">
+                <span class="font-bold text-blue-400 text-sm block">2. Restaurar Backup Existente</span>
+                <p class="text-xs text-slate-400">Selecione um arquivo <code class="text-blue-300">.json</code> salvo anteriormente para restaurar seus dados.</p>
+                <label class="w-full py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs transition flex items-center justify-center cursor-pointer">
+                  <span>⬆️ Selecionar Arquivo .JSON</span>
+                  <input type="file" id="import-json-input" accept=".json,application/json" class="hidden" />
+                </label>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- VIEW 6 (PADRÃO): DOSSIÊ COMPLETO (TODAS AS 8 SEÇÕES)      -->
+        <!-- ========================================================= -->
+        <div id="view-dossier" class="app-view space-y-8">
+          <!-- Barra de Busca & Filtros do Dossiê -->
+          <div class="rounded-2xl bg-card border border-slate-800 p-4 sm:p-5 space-y-3">
+            <div class="relative">
+              <input
+                type="text"
+                id="global-search"
+                placeholder="Buscar plataforma, valor ($200, $25/h), PayPal, Wise, Tremendous, Deepgram, dscout..."
+                class="w-full rounded-xl bg-night border border-slate-700 pl-4 pr-20 py-3 text-sm text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none"
+              />
+              <button type="button" id="clear-search-btn" class="hidden absolute right-3 top-1/2 -translate-y-1/2 px-2.5 py-1 rounded-lg bg-slate-800 text-xs text-slate-300">
+                Limpar
+              </button>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="text-xs text-slate-400 font-medium">Filtrar:</span>
+              <button type="button" data-quick-filter="all" class="quick-filter-btn active px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500 text-slate-950">Tudo</button>
+              <button type="button" data-quick-filter="paypal" class="quick-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700">PayPal</button>
+              <button type="button" data-quick-filter="wise" class="quick-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700">Wise</button>
+              <button type="button" data-quick-filter="api" class="quick-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700">Créditos API</button>
+              <button type="button" data-quick-filter="nocard" class="quick-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700">Sem Cartão</button>
+            </div>
+          </div>
+
+          <!-- SEÇÃO 1 -->
+          <section id="sec-1" class="searchable-section scroll-mt-20 space-y-3" data-tags="api nocard">
+            <div class="flex items-center gap-2.5">
+              <span class="w-7 h-7 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-xs">1</span>
+              <h3 class="text-lg font-extrabold text-white">Diagnóstico Inicial (Vídeo & 3 Capturas de Tela)</h3>
+            </div>
+            <div class="rounded-2xl bg-card border border-slate-800 p-5 space-y-4">
+              <div class="p-3.5 rounded-xl bg-blue-500/10 border border-blue-500/25 text-xs sm:text-sm text-slate-200">
+                <strong class="text-white">Veredito Técnico:</strong> Os programas mostrados nos prints <strong class="text-rose-400">não pagam dinheiro real sacável</strong> — concedem apenas <strong class="text-blue-300">créditos de uso técnico em API (tokens)</strong> dentro das próprias plataformas.
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+                <div class="searchable-item p-4 rounded-xl bg-night border border-slate-800 space-y-1.5" data-tags="api nocard">
+                  <div class="flex justify-between items-center"><strong class="text-white text-sm">Deepgram</strong><span class="px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 text-xs font-bold">$200 API</span></div>
+                  <p class="text-xs text-slate-400">Créditos promocionais de Voice AI (STT, TTS e agentes de voz). Intransferível e não sacável.</p>
+                </div>
+                <div class="searchable-item p-4 rounded-xl bg-night border border-slate-800 space-y-1.5" data-tags="api">
+                  <div class="flex justify-between items-center"><strong class="text-white text-sm">OpenAI (API + Sharing)</strong><span class="px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 text-xs font-bold">$127 + Tokens</span></div>
+                  <p class="text-xs text-slate-400">Saldo promocional + 1M a 10M tokens/dia ao ativar compartilhamento em Data Controls → Sharing.</p>
+                </div>
+                <div class="searchable-item p-4 rounded-xl bg-night border border-slate-800 space-y-1.5" data-tags="api">
+                  <div class="flex justify-between items-center"><strong class="text-white text-sm">Anthropic (Claude)</strong><span class="px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 text-xs font-bold">$200 API</span></div>
+                  <p class="text-xs text-slate-400">Benefício vinculado à assinatura do plano pago ("plano Ultra") na Individual Org. Não sacável.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- SEÇÃO 2 -->
+          <section id="sec-2" class="searchable-section scroll-mt-20 space-y-3" data-tags="api nocard">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div class="flex items-center gap-2.5">
+                <span class="w-7 h-7 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-xs">2</span>
+                <h3 class="text-lg font-extrabold text-white">Programas de Créditos Gratuitos de API (Sem Cartão)</h3>
+              </div>
+              <div class="flex flex-wrap gap-1.5">
+                <button type="button" data-api-tab="all" class="api-tab-btn px-2.5 py-1 rounded-lg text-xs font-bold bg-blue-600 text-white">Todos (26)</button>
+                <button type="button" data-api-tab="direct" class="api-tab-btn px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300">Créditos USD (13)</button>
+                <button type="button" data-api-tab="quotas" class="api-tab-btn px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300">Cotas Grátis (11)</button>
+                <button type="button" data-api-tab="optin" class="api-tab-btn px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300">Opt-in (2)</button>
+              </div>
+            </div>
+
+            <div class="api-panel space-y-2.5" data-api-group="direct">
+              <p class="text-xs font-bold text-blue-400 uppercase">A. Créditos Diretos no Cadastro (Sem Cartão)</p>
+              <div id="api-direct-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+            </div>
+
+            <div class="api-panel space-y-2.5 pt-2" data-api-group="quotas">
+              <p class="text-xs font-bold text-blue-400 uppercase">B. Cotas Diárias / Mensais Permanentes (Sem Cartão)</p>
+              <div id="api-quotas-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+            </div>
+
+            <div class="api-panel space-y-2.5 pt-2" data-api-group="optin">
+              <p class="text-xs font-bold text-blue-400 uppercase">C. Compartilhamento de Dados (Opt-in)</p>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div class="searchable-item p-4 rounded-xl bg-card border border-slate-800 flex flex-col justify-between gap-2.5" data-tags="api">
+                  <div>
+                    <div class="flex justify-between"><strong class="text-white text-sm">OpenAI Data Sharing</strong><span class="text-xs font-bold text-blue-300">1M–10M tokens/dia</span></div>
+                    <p class="text-xs text-slate-400 mt-1">Contas elegíveis nos tiers Launch/Grow ganham tokens diários renovados às 00:00 UTC.</p>
+                  </div>
+                  <a href="https://platform.openai.com/settings/organization/data-controls/sharing" target="_blank" rel="noopener noreferrer" class="py-2 px-3 rounded-lg bg-slate-800 hover:bg-blue-600 text-center text-xs font-semibold text-white transition">Abrir Data Controls ↗</a>
+                </div>
+                <div class="searchable-item p-4 rounded-xl bg-card border border-slate-800 flex flex-col justify-between gap-2.5" data-tags="api">
+                  <div>
+                    <div class="flex justify-between"><strong class="text-white text-sm">xAI (Grok API)</strong><span class="text-xs font-bold text-blue-300">Até $150/mês</span></div>
+                    <p class="text-xs text-slate-400 mt-1">Créditos mensais de API mediante opt-in de compartilhamento no console xAI.</p>
+                  </div>
+                  <a href="https://console.x.ai" target="_blank" rel="noopener noreferrer" class="py-2 px-3 rounded-lg bg-slate-800 hover:bg-blue-600 text-center text-xs font-semibold text-white transition">Acessar console.x.ai ↗</a>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- SEÇÃO 3 -->
+          <section id="sec-3" class="searchable-section scroll-mt-20 space-y-3" data-tags="paypal wise nocard">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div class="flex items-center gap-2.5">
+                <span class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">3</span>
+                <h3 class="text-lg font-extrabold text-white">Plataformas de IA que Pagam em Dólar Real (USD)</h3>
+              </div>
+              <div class="flex flex-wrap gap-1.5">
+                <button type="button" data-pay-filter="all" class="pay-filter-btn px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-500 text-slate-950">Todos</button>
+                <button type="button" data-pay-filter="paypal" class="pay-filter-btn px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300">PayPal</button>
+                <button type="button" data-pay-filter="wise" class="pay-filter-btn px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300">Wise</button>
+              </div>
+            </div>
+            <div id="usd-platforms-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5"></div>
+          </section>
+
+          <!-- SEÇÃO 4 -->
+          <section id="sec-4" class="searchable-section scroll-mt-20 space-y-3" data-tags="paypal nocard">
+            <div class="flex items-center gap-2.5">
+              <span class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">4</span>
+              <h3 class="text-lg font-extrabold text-white">Campanhas Relâmpago (Estilo Hark Pro + Minute Data)</h3>
+            </div>
+            <div class="rounded-2xl bg-card border border-slate-800 p-5 space-y-4">
+              <div class="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs text-slate-200">
+                🛡️ <strong class="text-rose-300">Regra Antifraude Tremendous:</strong> Use <strong>1 conta por pessoa</strong>, <strong>sem VPN</strong> e com o <strong>mesmo e-mail principal do PayPal</strong>. E-mails oficiais chegam de <code class="text-emerald-300">rewards@reward.tremendous.com</code> sem cobrar taxas.
+              </div>
+              <div id="lightning-platforms-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"></div>
+              <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800 text-xs">
+                <span class="text-slate-400">Monitorar vazamentos de links:</span>
+                <a href="https://www.reddit.com/r/beermoneyglobal/" target="_blank" rel="noopener noreferrer" class="px-3 py-1 rounded-lg bg-orange-500/15 text-orange-300 border border-orange-500/30 font-semibold">r/beermoneyglobal ↗</a>
+                <a href="https://www.reddit.com/r/BeerMoneyBrasil/" target="_blank" rel="noopener noreferrer" class="px-3 py-1 rounded-lg bg-orange-500/15 text-orange-300 border border-orange-500/30 font-semibold">r/BeerMoneyBrasil ↗</a>
+              </div>
+            </div>
+          </section>
+
+          <!-- SEÇÃO 5 -->
+          <section id="sec-5" class="searchable-section scroll-mt-20 space-y-3" data-tags="paypal wise nocard">
+            <div class="flex items-center gap-2.5">
+              <span class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">5</span>
+              <h3 class="text-lg font-extrabold text-white">Monitoramento Automático Diário (08:00 BRT)</h3>
+            </div>
+            <div class="rounded-2xl bg-gradient-to-r from-emerald-950/60 to-card border border-emerald-500/30 p-5 text-xs sm:text-sm space-y-2">
+              <div class="flex items-center gap-2 font-extrabold text-emerald-400">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                <span>AGENDAMENTO ATIVO • Todos os dias às 08:00 (Horário de Brasília)</span>
+              </div>
+              <p class="text-slate-300">
+                Varredura automática das últimas 24h no Reddit, X e painéis patrocinados filtrando estritamente <strong>USD via PayPal, Wise ou Tremendous</strong> para o <strong>Brasil</strong> (Stripe, cartão e depósitos descartados). Disponível no menu lateral do Gemini em <strong>Scheduled</strong>.
+              </p>
+            </div>
+          </section>
+
+          <!-- SEÇÃO 6 -->
+          <section id="sec-6" class="searchable-section scroll-mt-20 space-y-3" data-tags="paypal wise nocard">
+            <div class="flex items-center gap-2.5">
+              <span class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">6</span>
+              <h3 class="text-lg font-extrabold text-white">Relatório da Varredura Manual (16/11/2026)</h3>
+            </div>
+            <div class="rounded-2xl bg-card border border-slate-800 p-5 space-y-3 text-xs">
+              <p class="text-slate-300"><strong>Status 24h:</strong> Nenhuma campanha relâmpago estilo <em>Minute Data</em> publicada hoje. Vagas ativas aprovadas para PayPal/Wise:</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                <div class="p-3.5 rounded-xl bg-night border border-emerald-500/30">
+                  <strong class="text-white block">Respondent.io & dscout</strong>
+                  <span class="text-emerald-400 font-bold">PayPal / Tremendous</span>
+                  <p class="text-slate-400 mt-1">Estudos ativos para o Brasil ($2 a $150+ USD).</p>
+                </div>
+                <div class="p-3.5 rounded-xl bg-night border border-sky-500/30">
+                  <strong class="text-white block">Mercor (Áudio / TTS PT-BR)</strong>
+                  <span class="text-sky-400 font-bold">Wise ($15–$30/h)</span>
+                  <p class="text-slate-400 mt-1">Revisão de voz e audiolivros em português com pagamento semanal.</p>
+                </div>
+                <div class="p-3.5 rounded-xl bg-night border border-emerald-500/30">
+                  <strong class="text-white block">Babel Audio, Prolific & Surge AI</strong>
+                  <span class="text-emerald-400 font-bold">PayPal ($8–$24+/h)</span>
+                  <p class="text-slate-400 mt-1">Gravação de áudio e avaliação RLHF abertas no Brasil.</p>
+                </div>
+              </div>
+              <p class="text-rose-300 pt-1">🚫 <strong>Descartados na auditoria:</strong> Handshake AI (exige Stripe no Brasil) e QNX Global Hackathon (exclui o Brasil nas regras).</p>
+            </div>
+          </section>
+
+          <!-- SEÇÃO 7 -->
+          <section id="sec-7" class="searchable-section scroll-mt-20 space-y-3" data-tags="paypal nocard">
+            <div class="flex items-center gap-2.5">
+              <span class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-xs">7</span>
+              <h3 class="text-lg font-extrabold text-white">Guia Prático para Destravar Missões no dscout</h3>
+            </div>
+            <div class="rounded-2xl bg-card border border-slate-800 p-5 space-y-2.5 text-xs">
+              <label class="flex items-start gap-3 p-3 rounded-xl bg-night border border-slate-800 cursor-pointer">
+                <input type="checkbox" data-check-id="dscout-1" class="progress-checkbox mt-0.5 h-4 w-4 rounded text-emerald-500 bg-slate-900 border-slate-600" />
+                <div><strong class="text-white block">1. Preencher "Profile Boosters" sem marcar opções exclusivas dos EUA</strong><span class="text-slate-400">Evita bloqueio por inconsistência geográfica.</span></div>
+              </label>
+              <label class="flex items-start gap-3 p-3 rounded-xl bg-night border border-slate-800 cursor-pointer">
+                <input type="checkbox" data-check-id="dscout-2" class="progress-checkbox mt-0.5 h-4 w-4 rounded text-emerald-500 bg-slate-900 border-slate-600" />
+                <div><strong class="text-white block">2. Ativar Push e abrir o app móvel entre 11h e 18h (BRT)</strong><span class="text-slate-400">O painel Explore funciona apenas no app de celular.</span></div>
+              </label>
+              <label class="flex items-start gap-3 p-3 rounded-xl bg-night border border-slate-800 cursor-pointer">
+                <input type="checkbox" data-check-id="dscout-3" class="progress-checkbox mt-0.5 h-4 w-4 rounded text-emerald-500 bg-slate-900 border-slate-600" />
+                <div><strong class="text-white block">3. Usar o mesmo e-mail no Respondent.io</strong><span class="text-slate-400">A dscout recruta brasileiros via Partner Panels do Respondent.</span></div>
+              </label>
+              <label class="flex items-start gap-3 p-3 rounded-xl bg-night border border-slate-800 cursor-pointer">
+                <input type="checkbox" data-check-id="dscout-4" class="progress-checkbox mt-0.5 h-4 w-4 rounded text-emerald-500 bg-slate-900 border-slate-600" />
+                <div><strong class="text-white block">4. Caprichar no vídeo de 30–60s nas primeiras triagens</strong><span class="text-slate-400">Aumenta prioridade para liberar missões Express automáticas.</span></div>
+              </label>
+            </div>
+          </section>
+
+          <!-- SEÇÃO 8 -->
+          <section id="sec-8" class="searchable-section scroll-mt-20 space-y-3" data-tags="api">
+            <div class="flex items-center gap-2.5">
+              <span class="w-7 h-7 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center font-bold text-xs">8</span>
+              <h3 class="text-lg font-extrabold text-white">Análise de Anúncios do YouTube (Alibaba Cloud & TokenPlus)</h3>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 text-xs">
+              <div class="p-4 rounded-2xl bg-card border border-rose-500/30 space-y-1.5">
+                <div class="flex justify-between"><strong class="text-white text-sm">Alibaba Cloud ($200 + Tokens)</strong><span class="px-2 py-0.5 rounded bg-rose-500/15 text-rose-300 font-bold">Descartado</span></div>
+                <p class="text-slate-400">Propaganda oficial legítima, mas oferece apenas cupons internos de nuvem/API válidos por 60 dias (não sacáveis) e exige cadastro empresarial com análise manual.</p>
+              </div>
+              <div class="p-4 rounded-2xl bg-card border border-rose-500/30 space-y-1.5">
+                <div class="flex justify-between"><strong class="text-white text-sm">TokenPlus ($1 na 1ª recarga)</strong><span class="px-2 py-0.5 rounded bg-rose-500/15 text-rose-300 font-bold">Descartado</span></div>
+                <p class="text-slate-400">Exige depósito/recarga inicial e concede apenas saldo interno para consumo de APIs de IA, sem saque em dólar.</p>
+              </div>
+            </div>
+          </section>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- BOTTOM NAVIGATION BAR (MOBILE)                            -->
+  <!-- ========================================================= -->
+  <nav class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-card/95 backdrop-blur-md border-t border-slate-800 grid grid-cols-5 py-1.5 px-1 text-[10px] font-semibold">
+    <button type="button" data-view="view-dossier" class="mobile-nav-btn active flex flex-col items-center justify-center py-1 text-emerald-400">
+      <span class="text-base">📚</span>
+      <span>Dossiê</span>
+    </button>
+    <button type="button" data-view="view-hunter" class="mobile-nav-btn flex flex-col items-center justify-center py-1 text-slate-400">
+      <span class="text-base">🤖</span>
+      <span>Caçador IA</span>
+    </button>
+    <button type="button" data-view="view-tracker" class="mobile-nav-btn flex flex-col items-center justify-center py-1 text-slate-400">
+      <span class="text-base">💰</span>
+      <span>Ganhos</span>
+    </button>
+    <button type="button" data-view="view-importer" class="mobile-nav-btn flex flex-col items-center justify-center py-1 text-slate-400">
+      <span class="text-base">📅</span>
+      <span>Importar</span>
+    </button>
+    <button type="button" data-view="view-backup" class="mobile-nav-btn flex flex-col items-center justify-center py-1 text-slate-400">
+      <span class="text-base">💾</span>
+      <span>Backup</span>
+    </button>
+  </nav>
+
+  <!-- ========================================================= -->
+  <!-- JAVASCRIPT COMPLETO: PWA, GEMINI API, TRACKER & STORAGE   -->
+  <!-- ========================================================= -->
+  <script>
+    // ===========================================================
+    // 1. CONFIGURAÇÃO PWA (MANIFEST DINÂMICO + SERVICE WORKER)
+    // ===========================================================
+    (function initPWA() {
+      const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+        <defs>
+          <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#10b981"/>
+            <stop offset="100%" stop-color="#047857"/>
+          </linearGradient>
+        </defs>
+        <rect width="512" height="512" rx="112" fill="#0b0f19"/>
+        <rect x="24" y="24" width="464" height="464" rx="96" fill="url(#g)" fill-opacity="0.18" stroke="#10b981" stroke-width="12"/>
+        <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" fill="#10b981" font-family="Arial, sans-serif" font-weight="900" font-size="185">$IA</text>
+        <text x="50%" y="80%" dominant-baseline="middle" text-anchor="middle" fill="#e2e8f0" font-family="Arial, sans-serif" font-weight="700" font-size="44">USD • BRASIL</text>
+      </svg>`;
+
+      const iconDataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgIcon);
+      document.getElementById('pwa-apple-icon').href = iconDataUrl;
+      document.getElementById('pwa-favicon').href = iconDataUrl;
+
+      const manifestObj = {
+        name: "Central Caçador IA — USD & Recompensas",
+        short_name: "Caçador IA",
+        description: "Painel privado para caçar programas de IA que pagam em USD via PayPal e Wise no Brasil.",
+        start_url: "./",
+        display: "standalone",
+        orientation: "portrait",
+        background_color: "#0b0f19",
+        theme_color: "#0b0f19",
+        icons: [
+          { src: iconDataUrl, sizes: "192x192", type: "image/svg+xml", purpose: "any maskable" },
+          { src: iconDataUrl, sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }
+        ]
+      };
+
+      try {
+        const manifestBlob = new Blob([JSON.stringify(manifestObj)], { type: 'application/manifest+json' });
+        document.getElementById('pwa-manifest-link').href = URL.createObjectURL(manifestBlob);
+      } catch (e) {}
+
+      // Service Worker offline via Blob (funciona automaticamente quando hospedado em HTTPS)
+      if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+        const swCode = `
+          const CACHE_NAME = 'cacador-ia-v1';
+          self.addEventListener('install', (e) => {
+            self.skipWaiting();
+          });
+          self.addEventListener('activate', (e) => {
+            e.waitUntil(clients.claim());
+          });
+          self.addEventListener('fetch', (e) => {
+            if (e.request.method !== 'GET') return;
+            e.respondWith(
+              fetch(e.request).catch(() => caches.match(e.request))
+            );
+          });
+        `;
+        try {
+          const swBlob = new Blob([swCode], { type: 'application/javascript' });
+          navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
+        } catch (e) {}
+      }
+
+      // Captura evento nativo beforeinstallprompt no Android Chrome
+      let deferredPrompt = null;
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        const box = document.getElementById('native-install-box');
+        if (box) box.classList.remove('hidden');
+      });
+
+      document.getElementById('trigger-native-install').addEventListener('click', async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          showToast('App instalado na tela inicial do Android!');
+          document.getElementById('install-modal').classList.add('hidden');
+        }
+        deferredPrompt = null;
+      });
+    })();
+
+    // ===========================================================
+    // 2. BASE DE DADOS E ESTADO PERSISTENTE (LOCALSTORAGE)
+    // ===========================================================
+    const APP_STORAGE_KEY = 'central_cacador_ia_state_v2';
+    let appState = {
+      checked: {},
+      earnings: [],
+      customOpps: [],
+      usdRate: 5.75,
+      monthlyGoal: 200
+    };
+
+    try {
+      const raw = JSON.parse(localStorage.getItem(APP_STORAGE_KEY));
+      if (raw && typeof raw === 'object') {
+        appState = { ...appState, ...raw };
+      }
+    } catch (e) {}
+
+    function persistState() {
+      try {
+        localStorage.setItem(APP_STORAGE_KEY, JSON.stringify(appState));
+      } catch (e) {}
+      updateFinancialStats();
+      renderCustomOpps();
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      document.getElementById('toast-msg').textContent = msg;
+      t.classList.remove('hidden');
+      t.classList.add('flex');
+      clearTimeout(window.__toastT);
+      window.__toastT = setTimeout(() => {
+        t.classList.add('hidden');
+        t.classList.remove('flex');
+      }, 2600);
+    }
+
+    // Dados fixos do Dossiê
+    const apiDirectPrograms = [
+      { name: "Deepgram", reward: "$200 créditos", desc: "Voice AI (STT, TTS e agentes de voz). Sem expiração.", url: "https://console.deepgram.com" },
+      { name: "Anyscale", reward: "$100 créditos", desc: "Inferência e fine-tuning de modelos open-source.", url: "https://www.anyscale.com" },
+      { name: "Akash Console", reward: "$100 créditos", desc: "GPU descentralizada na nuvem sem cartão.", url: "https://console.akash.network" },
+      { name: "AssemblyAI", reward: "$50 créditos", desc: "Transcrição de áudio e fala sem data de expiração.", url: "https://www.assemblyai.com" },
+      { name: "Baseten", reward: "$30 créditos", desc: "Deploy e inferência de modelos no cadastro.", url: "https://www.baseten.co" },
+      { name: "Modal", reward: "$30 / mês", desc: "Computação serverless/GPU recorrente no plano Free.", url: "https://modal.com/pricing" },
+      { name: "Inference.net", reward: "$25 créditos", desc: "Saldo inicial para modelos open-source.", url: "https://inference.net" },
+      { name: "Cerebrium", reward: "$10 créditos", desc: "GPU serverless gratuita no cadastro.", url: "https://www.cerebrium.ai" },
+      { name: "Mistral AI", reward: "$10 / mês", desc: "Plano Experiment; exige apenas verificação de telefone.", url: "https://console.mistral.ai" },
+      { name: "Mixedbread", reward: "$5 créditos", desc: "Crédito único para embeddings e reranking.", url: "https://www.mixedbread.ai" },
+      { name: "Anthropic (Claude)", reward: "$5 créditos", desc: "Crédito de teste na API com verificação de telefone.", url: "https://console.anthropic.com" },
+      { name: "Fireworks AI", reward: "$1 crédito", desc: "Saldo inicial gratuito para modelos rápidos.", url: "https://fireworks.ai" },
+      { name: "LemonData", reward: "$1 crédito", desc: "Roteador para 300+ modelos sem cartão.", url: "https://lemondata.cc" }
+    ];
+
+    const apiQuotaPrograms = [
+      { name: "Google AI Studio", reward: "Cota Diária Grátis", desc: "Modelos Gemini Flash, Flash-Lite e Gemma gratuitos.", url: "https://aistudio.google.com" },
+      { name: "Groq", reward: "1.000 req/dia", desc: "Até 30 req/min e 200k tokens/dia ultrarrápidos.", url: "https://console.groq.com" },
+      { name: "OpenRouter", reward: "50 req/dia (:free)", desc: "Dezenas de modelos gratuitos sem comprar créditos.", url: "https://openrouter.ai" },
+      { name: "Cloudflare Workers AI", reward: "10.000 Neurons/dia", desc: "Llama, Mistral e Stable Diffusion diários grátis.", url: "https://dash.cloudflare.com" },
+      { name: "Saturn Cloud", reward: "150 horas/mês GPU", desc: "GPU gratuita na nuvem no plano Free.", url: "https://saturncloud.io" },
+      { name: "Hugging Face ZeroGPU", reward: "GPUs H200 Grátis", desc: "Acesso gratuito a NVIDIA H200 no Spaces.", url: "https://huggingface.co" },
+      { name: "Beam Cloud", reward: "10 horas GPU", desc: "GPU serverless gratuita sem cartão.", url: "https://www.beam.cloud" },
+      { name: "Gladia", reward: "10 horas/mês áudio", desc: "Transcrição de áudio gratuita mensal.", url: "https://www.gladia.io" },
+      { name: "Cohere", reward: "1.000 chamadas/mês", desc: "Chave Trial gratuita para avaliação.", url: "https://dashboard.cohere.com" },
+      { name: "Jina AI", reward: "10M tokens grátis", desc: "Embeddings, reranker e reader sem cartão.", url: "https://jina.ai" },
+      { name: "Voyage AI", reward: "200M tokens grátis", desc: "Tokens gratuitos de embedding por conta.", url: "https://www.voyageai.com" }
+    ];
+
+    const usdPlatforms = [
+      { id: "p-prolific", name: "Prolific (AI Studies)", reward: "$8 a $18+ USD/h", pay: "paypal", payLabel: "PayPal", desc: "Estudos acadêmicos e avaliação de IA (KYC + perfil About You).", url: "https://www.prolific.com" },
+      { id: "p-babel", name: "Babel Audio", reward: "~$15 a $24+ USD/h", pay: "paypal", payLabel: "PayPal (Semanal)", desc: "Gravação de conversas em português para treinar modelos de voz.", url: "https://babel.audio" },
+      { id: "p-mercor", name: "Mercor (Áudio PT-BR)", reward: "$15 a $30 USD/h", pay: "wise", payLabel: "Wise (Semanal)", desc: "Qualidade de áudio/TTS e audiolivros em português brasileiro.", url: "https://work.mercor.com" },
+      { id: "p-remo", name: "RemoExperts (REX.Zone)", reward: "$25 a $45 USD/h", pay: "wise", payLabel: "Wise / Payoneer", desc: "Amostra de escrita em PT/EN e calibração de raciocínio de IA.", url: "https://www.rex.zone" },
+      { id: "p-crowdgen", name: "CrowdGen (Appen)", reward: "$5 a $25+ USD/h", pay: "paypal", payLabel: "PayPal / Payoneer", desc: "Coleta de dados, transcrição e avaliação de buscas no Brasil.", url: "https://crowdgen.com" },
+      { id: "p-telus", name: "TELUS Digital AI", reward: "$9 a $65 USD/h", pay: "paypal", payLabel: "PayPal / Hyperwallet", desc: "Avaliador de mídia e respostas de IA após exame de diretrizes.", url: "https://www.telusinternational.ai" },
+      { id: "p-outlier", name: "Outlier AI (Scale AI)", reward: "$10 a $50+ USD/h", pay: "paypal", payLabel: "PayPal / AirTM", desc: "Avaliação de prompts e respostas em Português BR ou código.", url: "https://outlier.ai" },
+      { id: "p-surge", name: "Surge AI", reward: "Projetos USD", pay: "paypal", payLabel: "PayPal", desc: "Vagas RLHF e avaliação de dados abertas no Brasil.", url: "https://www.surgehq.ai" },
+      { id: "p-meridial", name: "Meridial Expert", reward: "$11 a $35 USD/h", pay: "wise", payLabel: "USD / Hora", desc: "Diálogos de voz e avaliações JSON em Português (BR).", url: "https://parailabs.com/jobs/brazil" },
+      { id: "p-alignerr", name: "Alignerr (Labelbox)", reward: "$15 a $60+ USD/h", pay: "outros", payLabel: "Deel", desc: "Transcrição, edição e alinhamento de modelos em PT/EN.", url: "https://www.alignerr.com" },
+      { id: "p-mindrift", name: "Mindrift (Toloka)", reward: "$15 a $40+ USD/h", pay: "outros", payLabel: "Payoneer", desc: "Produção e revisão de textos em português para IA.", url: "https://mindrift.ai" },
+      { id: "p-devpost", name: "Devpost & Bug Bounty", reward: "$200 a $20.000+", pay: "paypal", payLabel: "PayPal / Wise", desc: "Hackathons de IA e Bug Bounty OpenAI/Anthropic.", url: "https://devpost.com/hackathons" }
+    ];
+
+    const lightningPlatforms = [
+      { id: "l-resp", name: "Respondent.io", reward: "$15–$150+ USD", pay: "Tremendous → PayPal", desc: "5–8 perguntas de triagem; estudos curtos pagam $15–$40.", url: "https://app.respondent.io" },
+      { id: "l-ui", name: "User Interviews", reward: "$10–$100+ USD", pay: "Tremendous", desc: "Estudos de produto e IA na América Latina/Brasil.", url: "https://www.userinterviews.com" },
+      { id: "l-dscout", name: "dscout", reward: "$2–$150 USD", pay: "PayPal Direto", desc: "Missões Express e Diary pelo aplicativo móvel.", url: "https://dscout.com" },
+      { id: "l-maze", name: "Maze Testers", reward: "$5–$30 USD", pay: "PayPal / Tremendous", desc: "Convites por e-mail com 5–10 perguntas sobre protótipos.", url: "https://maze.co/testers" },
+      { id: "l-crowd", name: "UserCrowd / Userlytics", reward: "$1–$20 USD", pay: "PayPal", desc: "Microtestes de 3 a 10 minutos sobre interfaces.", url: "https://www.usercrowd.com" },
+      { id: "l-spire", name: "Spirelight AI", reward: "Por microtarefa", pay: "PayPal / Banco", desc: "Gravação de frases curtas ou revisão de respostas.", url: "https://portal.spirelight.net" },
+      { id: "l-one", name: "OneForma", reward: "Por missão USD", pay: "Tremendous / PayPal", desc: "Missões pontuais de áudio e fotos no Brasil.", url: "https://www.oneforma.com" },
+      { id: "l-toloka", name: "Toloka AI", reward: "Saque mín. $0,20", pay: "Payoneer", desc: "Microtarefas rápidas de comparação de IA.", url: "https://toloka.ai" }
+    ];
+
+    // ===========================================================
+    // 3. RENDERIZAÇÃO DO DOSSIÊ E CHECKBOXES
+    // ===========================================================
+    function renderDossier() {
+      document.getElementById('api-direct-grid').innerHTML = apiDirectPrograms.map(i => `
+        <div class="searchable-item p-3.5 rounded-xl bg-card border border-slate-800 flex flex-col justify-between gap-2.5" data-tags="api nocard">
+          <div>
+            <div class="flex justify-between items-center gap-1"><strong class="text-white text-xs sm:text-sm">${i.name}</strong><span class="px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 text-[11px] font-bold">${i.reward}</span></div>
+            <p class="text-xs text-slate-400 mt-1">${i.desc}</p>
+          </div>
+          <a href="${i.url}" target="_blank" rel="noopener noreferrer" class="py-1.5 px-3 rounded-lg bg-slate-800 hover:bg-blue-600 text-center text-xs font-semibold text-white transition">Acessar ↗</a>
+        </div>
+      `).join('');
+
+      document.getElementById('api-quotas-grid').innerHTML = apiQuotaPrograms.map(i => `
+        <div class="searchable-item p-3.5 rounded-xl bg-card border border-slate-800 flex flex-col justify-between gap-2.5" data-tags="api nocard">
+          <div>
+            <div class="flex justify-between items-center gap-1"><strong class="text-white text-xs sm:text-sm">${i.name}</strong><span class="px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 text-[11px] font-bold">${i.reward}</span></div>
+            <p class="text-xs text-slate-400 mt-1">${i.desc}</p>
+          </div>
+          <a href="${i.url}" target="_blank" rel="noopener noreferrer" class="py-1.5 px-3 rounded-lg bg-slate-800 hover:bg-blue-600 text-center text-xs font-semibold text-white transition">Acessar ↗</a>
+        </div>
+      `).join('');
+
+      document.getElementById('usd-platforms-grid').innerHTML = usdPlatforms.map(p => {
+        const checked = !!appState.checked[p.id];
+        const badgeCls = p.pay === 'paypal' ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' : p.pay === 'wise' ? 'bg-sky-500/15 text-sky-300 border-sky-500/30' : 'bg-slate-800 text-slate-300 border-slate-700';
+        return `
+          <div class="searchable-item usd-card p-4 rounded-2xl bg-card border ${checked ? 'border-emerald-500/60' : 'border-slate-800'} flex flex-col justify-between gap-3" data-tags="${p.pay} nocard" data-pay="${p.pay}">
+            <div class="space-y-2">
+              <div class="flex items-start justify-between gap-2">
+                <div>
+                  <h4 class="font-bold text-white text-sm">${p.name}</h4>
+                  <span class="text-xs font-extrabold text-emerald-400">${p.reward}</span>
+                </div>
+                <label class="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-night border border-slate-800 cursor-pointer text-[11px] text-slate-300">
+                  <input type="checkbox" data-check-id="${p.id}" ${checked ? 'checked' : ''} class="progress-checkbox h-3.5 w-3.5 rounded text-emerald-500 bg-slate-900 border-slate-600" />
+                  <span>Cadastrado</span>
+                </label>
+              </div>
+              <span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${badgeCls}">${p.payLabel}</span>
+              <p class="text-xs text-slate-400 leading-relaxed">${p.desc}</p>
+            </div>
+            <a href="${p.url}" target="_blank" rel="noopener noreferrer" class="py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-center text-xs font-bold text-white transition">Cadastrar / Abrir ↗</a>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('lightning-platforms-grid').innerHTML = lightningPlatforms.map(l => {
+        const checked = !!appState.checked[l.id];
+        return `
+          <div class="searchable-item p-3.5 rounded-xl bg-night border ${checked ? 'border-emerald-500/60' : 'border-slate-800'} flex flex-col justify-between gap-2.5" data-tags="paypal nocard">
+            <div class="space-y-1">
+              <div class="flex items-center justify-between">
+                <strong class="text-white text-xs sm:text-sm">${l.name}</strong>
+                <input type="checkbox" data-check-id="${l.id}" ${checked ? 'checked' : ''} class="progress-checkbox h-3.5 w-3.5 rounded text-emerald-500 bg-slate-900 border-slate-600 cursor-pointer" />
+              </div>
+              <div class="text-xs font-extrabold text-emerald-400">${l.reward} <span class="text-[10px] font-normal text-slate-400">(${l.pay})</span></div>
+              <p class="text-xs text-slate-400">${l.desc}</p>
+            </div>
+            <a href="${l.url}" target="_blank" rel="noopener noreferrer" class="py-1.5 px-2.5 rounded-lg bg-slate-800 hover:bg-emerald-600 text-center text-xs font-semibold text-white transition">Abrir ↗</a>
+          </div>
+        `;
+      }).join('');
+
+      syncCheckboxesFromState();
+    }
+
+    function syncCheckboxesFromState() {
+      document.querySelectorAll('.progress-checkbox').forEach(cb => {
+        const id = cb.getAttribute('data-check-id');
+        cb.checked = !!appState.checked[id];
+      });
+    }
+
+    // ===========================================================
+    // 4. RASTREADOR FINANCEIRO (USD -> BRL)
+    // ===========================================================
+    function updateFinancialStats() {
+      const rate = parseFloat(appState.usdRate) || 5.75;
+      const goal = parseFloat(appState.monthlyGoal) || 200;
+      document.getElementById('usd-brl-rate').value = rate.toFixed(2);
+
+      let totalUsd = 0;
+      let withdrawnUsd = 0;
+      let pendingUsd = 0;
+
+      appState.earnings.forEach(item => {
+        const val = parseFloat(item.amount) || 0;
+        totalUsd += val;
+        if (item.status === 'Sacado') withdrawnUsd += val;
+        else pendingUsd += val;
+      });
+
+      const totalBrl = totalUsd * rate;
+      const pct = Math.min(100, Math.round((totalUsd / goal) * 100));
+
+      document.getElementById('stat-total-usd').textContent = `$${totalUsd.toFixed(2)}`;
+      document.getElementById('stat-total-brl').textContent = `≈ R$ ${totalBrl.toFixed(2).replace('.', ',')}`;
+      document.getElementById('stat-withdrawn-usd').textContent = `$${withdrawnUsd.toFixed(2)}`;
+      document.getElementById('stat-pending-usd').textContent = `$${pendingUsd.toFixed(2)}`;
+      document.getElementById('stat-goal-pct').textContent = `${pct}%`;
+      document.getElementById('stat-goal-target').textContent = `de $${goal.toFixed(2)}`;
+      document.getElementById('stat-goal-bar').style.width = `${pct}%`;
+
+      // Sidebar summary
+      document.getElementById('sidebar-usd-total').textContent = `$${totalUsd.toFixed(2)}`;
+      document.getElementById('sidebar-brl-preview').textContent = `≈ R$ ${totalBrl.toFixed(2).replace('.', ',')}`;
+      document.getElementById('sidebar-goal-bar').style.width = `${pct}%`;
+
+      const listEl = document.getElementById('earnings-list');
+      if (appState.earnings.length === 0) {
+        listEl.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">Nenhum ganho registrado ainda. Adicione seu primeiro valor em USD acima!</p>`;
+        return;
+      }
+
+      listEl.innerHTML = appState.earnings.map((item, idx) => {
+        const statusCls = item.status === 'Sacado'
+          ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+          : item.status === 'Aprovado'
+            ? 'bg-blue-500/15 text-blue-300 border-blue-500/30'
+            : 'bg-amber-500/15 text-amber-300 border-amber-500/30';
+
+        return `
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-xl bg-night border border-slate-800 text-xs">
+            <div class="flex items-center gap-3">
+              <span class="font-extrabold text-emerald-400 text-sm">$${parseFloat(item.amount).toFixed(2)}</span>
+              <div>
+                <strong class="text-white block">${item.platform}</strong>
+                <span class="text-slate-400">${item.method} • ${item.date || 'Hoje'}</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 self-end sm:self-auto">
+              <button type="button" data-cycle-status="${idx}" class="px-2.5 py-1 rounded-lg border font-semibold ${statusCls}" title="Clique para alternar status">
+                ${item.status}
+              </button>
+              <button type="button" data-del-earning="${idx}" class="p-1.5 rounded-lg bg-slate-800 hover:bg-rose-600 text-slate-400 hover:text-white transition" title="Excluir">
+                ✕
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ===========================================================
+    // 5. CAÇADOR IA AO VIVO (GEMINI API + GOOGLE SEARCH)
+    // ===========================================================
+    async function callGeminiHunter(userQuery) {
+      const apiKey = ""; // Fornecido automaticamente pelo ambiente em tempo de execução
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+      const systemPrompt = `Você é o Agente Caçador de Recompensas de IA do usuário no Brasil.
+REGRAS ESTRITAS E INEGOCIÁVEIS:
+1. Retorne APENAS oportunidades legítimas que paguem DINHEIRO REAL em USD (Dólar) e aceitem participantes residentes no BRASIL.
+2. Métodos de pagamento permitidos: APENAS PayPal, Wise ou Tremendous (com resgate para PayPal).
+3. DESCARTE qualquer plataforma que exija conta na Stripe, cartão de crédito, assinatura paga ou depósito inicial.
+4. Para cada oportunidade encontrada, informe claramente: Nome, Valor em USD, Método de Pagamento (PayPal/Wise/Tremendous), O que fazer e Link oficial completo (https://...).
+5. Responda de forma objetiva em Português do Brasil.`;
+
+      const payload = {
+        contents: [{ parts: [{ text: userQuery }] }],
+        tools: [{ google_search: {} }],
+        systemInstruction: { parts: [{ text: systemPrompt }] }
+      };
+
+      const delays = [1000, 2000, 4000];
+      for (let attempt = 0; attempt <= delays.length; attempt++) {
+        try {
+          const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          const data = await response.json();
+          const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+          const attributions = data?.candidates?.[0]?.groundingMetadata?.groundingAttributions || [];
+          const sources = attributions
+            .map(a => ({ uri: a.web?.uri, title: a.web?.title }))
+            .filter(s => s.uri && s.title);
+          return { text: text || "Nenhuma resposta retornada.", sources };
+        } catch (err) {
+          if (attempt === delays.length) throw err;
+          await new Promise(r => setTimeout(r, delays[attempt]));
+        }
+      }
+    }
+
+    function appendHunterMessage(role, htmlContent, extractedLinks = []) {
+      const container = document.getElementById('hunter-messages');
+      const wrapper = document.createElement('div');
+      wrapper.className = role === 'user'
+        ? 'flex justify-end'
+        : 'flex items-start gap-3';
+
+      if (role === 'user') {
+        wrapper.innerHTML = `
+          <div class="max-w-[85%] rounded-2xl bg-blue-600 text-white px-4 py-3 text-xs sm:text-sm font-medium shadow">
+            ${htmlContent}
+          </div>
+        `;
+      } else {
+        let saveBtnsHtml = '';
+        if (extractedLinks.length > 0) {
+          saveBtnsHtml = `<div class="pt-3 mt-3 border-t border-slate-800 flex flex-wrap gap-2">` +
+            extractedLinks.slice(0, 4).map(link => `
+              <button type="button" data-save-url="${link.url}" data-save-title="${link.title}" class="save-discovered-btn px-3 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-slate-950 border border-emerald-500/40 text-xs font-bold transition">
+                + Salvar "${link.title.slice(0, 26)}"
+              </button>
+            `).join('') + `</div>`;
+        }
+
+        wrapper.innerHTML = `
+          <div class="h-8 w-8 rounded-xl bg-blue-500/20 border border-blue-500/40 text-blue-400 flex items-center justify-center font-bold text-xs shrink-0">IA</div>
+          <div class="flex-1 rounded-2xl bg-card border border-slate-800 p-4 text-xs sm:text-sm text-slate-200 leading-relaxed space-y-2 overflow-x-auto">
+            <div>${htmlContent}</div>
+            ${saveBtnsHtml}
+          </div>
+        `;
+      }
+
+      container.appendChild(wrapper);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function formatMarkdownBasic(text) {
+      const escaped = text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+      return escaped
+        .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>')
+        .replace(/(https?:\/\/[^\s)<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-emerald-400 underline break-all">$1</a>')
+        .replace(/\n/g, '<br/>');
+    }
+
+    function extractLinksFromText(text, sources = []) {
+      const found = [];
+      const seen = new Set();
+      const urlRegex = /(https?:\/\/[^\s)<\]"']+)/g;
+      let match;
+      while ((match = urlRegex.exec(text)) !== null) {
+        const cleanUrl = match[1].replace(/[.,;]+$/, '');
+        if (!seen.has(cleanUrl)) {
+          seen.add(cleanUrl);
+          try {
+            const host = new URL(cleanUrl).hostname.replace('www.', '');
+            found.push({ title: host, url: cleanUrl });
+          } catch (e) {}
+        }
+      }
+      sources.forEach(s => {
+        if (!seen.has(s.uri)) {
+          seen.add(s.uri);
+          found.push({ title: s.title, url: s.uri });
+        }
+      });
+      return found;
+    }
+
+    // ===========================================================
+    // 6. IMPORTADOR DE RELATÓRIOS & OPORTUNIDADES CUSTOMIZADAS
+    // ===========================================================
+    function renderCustomOpps() {
+      const grid = document.getElementById('custom-opps-grid');
+      document.getElementById('custom-opps-count').textContent = `${appState.customOpps.length} salvas`;
+
+      if (appState.customOpps.length === 0) {
+        grid.innerHTML = `<p class="text-xs text-slate-500 col-span-full py-4">Nenhuma oportunidade extra importada ainda.</p>`;
+        return;
+      }
+
+      grid.innerHTML = appState.customOpps.map((op, idx) => `
+        <div class="p-4 rounded-xl bg-night border border-emerald-500/30 flex flex-col justify-between gap-2.5">
+          <div>
+            <div class="flex items-start justify-between gap-2">
+              <strong class="text-white text-sm">${op.title}</strong>
+              <button type="button" data-del-custom="${idx}" class="text-xs text-slate-400 hover:text-rose-400">✕</button>
+            </div>
+            <p class="text-xs text-slate-400 mt-1 break-all">${op.note || op.url}</p>
+          </div>
+          <a href="${op.url}" target="_blank" rel="noopener noreferrer" class="py-2 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-center text-xs font-bold text-white transition">
+            Abrir Oportunidade ↗
+          </a>
+        </div>
+      `).join('');
+    }
+
+    // ===========================================================
+    // 7. INICIALIZAÇÃO DE EVENTOS E NAVEGAÇÃO
+    // ===========================================================
+    document.addEventListener('DOMContentLoaded', () => {
+      renderDossier();
+      updateFinancialStats();
+      renderCustomOpps();
+
+      // Alternar Tema Claro / Escuro
+      function toggleTheme() {
+        document.documentElement.classList.toggle('dark');
+        showToast(document.documentElement.classList.contains('dark') ? 'Modo Escuro ativado' : 'Modo Claro ativado');
+      }
+      document.getElementById('mobile-theme-btn').addEventListener('click', toggleTheme);
+      document.getElementById('desktop-theme-btn').addEventListener('click', toggleTheme);
+
+      // Modal de Instalação Android PWA
+      const installModal = document.getElementById('install-modal');
+      document.getElementById('mobile-install-btn').addEventListener('click', () => {
+        installModal.classList.remove('hidden');
+        installModal.classList.add('flex');
+      });
+      document.getElementById('desktop-install-btn').addEventListener('click', () => {
+        installModal.classList.remove('hidden');
+        installModal.classList.add('flex');
+      });
+      document.getElementById('close-install-modal').addEventListener('click', () => {
+        installModal.classList.add('hidden');
+        installModal.classList.remove('flex');
+      });
+
+      // Troca de Views (Abas do App)
+      function switchView(targetViewId) {
+        document.querySelectorAll('.app-view').forEach(v => v.classList.add('hidden'));
+        const target = document.getElementById(targetViewId);
+        if (target) target.classList.remove('hidden');
+
+        // Atualiza botões pills superiores
+        document.querySelectorAll('.view-pill-btn').forEach(btn => {
+          const active = btn.getAttribute('data-view') === targetViewId;
+          btn.classList.toggle('bg-emerald-500', active);
+          btn.classList.toggle('text-slate-950', active);
+          btn.classList.toggle('bg-slate-800', !active);
+          btn.classList.toggle('text-slate-200', !active);
+        });
+
+        // Atualiza bottom nav mobile
+        document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
+          const active = btn.getAttribute('data-view') === targetViewId;
+          btn.classList.toggle('text-emerald-400', active);
+          btn.classList.toggle('text-slate-400', !active);
+        });
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      document.querySelectorAll('[data-view]').forEach(btn => {
+        btn.addEventListener('click', () => switchView(btn.getAttribute('data-view')));
+      });
+
+      // Links de salto direto do índice lateral para o Dossiê
+      document.querySelectorAll('.dossier-jump').forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          switchView('view-dossier');
+          const secId = link.getAttribute('data-jump');
+          setTimeout(() => {
+            const el = document.getElementById(secId);
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+          }, 60);
+        });
+      });
+
+      // Checkboxes Globais Persistentes
+      document.addEventListener('change', (e) => {
+        if (e.target.classList.contains('progress-checkbox')) {
+          const id = e.target.getAttribute('data-check-id');
+          appState.checked[id] = e.target.checked;
+          persistState();
+          showToast(e.target.checked ? 'Progresso salvo!' : 'Marcação removida.');
+        }
+      });
+
+      // Busca & Filtros no Dossiê
+      let quickTag = 'all';
+      let payTag = 'all';
+
+      function filterDossier() {
+        const q = document.getElementById('global-search').value.trim().toLowerCase();
+        document.getElementById('clear-search-btn').classList.toggle('hidden', !q);
+
+        document.querySelectorAll('.searchable-section').forEach(sec => {
+          const items = sec.querySelectorAll('.searchable-item');
+          const secTags = (sec.getAttribute('data-tags') || '').split(' ');
+          if (items.length === 0) {
+            const ok = (!q || sec.textContent.toLowerCase().includes(q)) && (quickTag === 'all' || secTags.includes(quickTag));
+            sec.classList.toggle('hidden', !ok);
+          } else {
+            let count = 0;
+            items.forEach(item => {
+              const tags = (item.getAttribute('data-tags') || '').split(' ');
+              const p = item.getAttribute('data-pay');
+              const matchQ = !q || item.textContent.toLowerCase().includes(q);
+              const matchQuick = quickTag === 'all' || tags.includes(quickTag);
+              const matchPay = !p || payTag === 'all' || p === payTag;
+              const vis = matchQ && matchQuick && matchPay;
+              item.classList.toggle('hidden', !vis);
+              if (vis) count++;
+            });
+            sec.classList.toggle('hidden', count === 0);
+          }
+        });
+      }
+
+      document.getElementById('global-search').addEventListener('input', filterDossier);
+      document.getElementById('clear-search-btn').addEventListener('click', () => {
+        document.getElementById('global-search').value = '';
+        filterDossier();
+      });
+
+      document.querySelectorAll('.quick-filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          quickTag = btn.getAttribute('data-quick-filter');
+          document.querySelectorAll('.quick-filter-btn').forEach(b => {
+            const act = b === btn;
+            b.classList.toggle('bg-emerald-500', act);
+            b.classList.toggle('text-slate-950', act);
+            b.classList.toggle('bg-slate-800', !act);
+            b.classList.toggle('text-slate-300', !act);
+          });
+          filterDossier();
+        });
+      });
+
+      document.querySelectorAll('.pay-filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          payTag = btn.getAttribute('data-pay-filter');
+          document.querySelectorAll('.pay-filter-btn').forEach(b => {
+            const act = b === btn;
+            b.classList.toggle('bg-emerald-500', act);
+            b.classList.toggle('text-slate-950', act);
+            b.classList.toggle('bg-slate-800', !act);
+            b.classList.toggle('text-slate-300', !act);
+          });
+          filterDossier();
+        });
+      });
+
+      document.querySelectorAll('.api-tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tab = btn.getAttribute('data-api-tab');
+          document.querySelectorAll('.api-tab-btn').forEach(b => {
+            const act = b === btn;
+            b.classList.toggle('bg-blue-600', act);
+            b.classList.toggle('text-white', act);
+            b.classList.toggle('bg-slate-800', !act);
+            b.classList.toggle('text-slate-300', !act);
+          });
+          document.querySelectorAll('.api-panel').forEach(p => {
+            p.classList.toggle('hidden', tab !== 'all' && p.getAttribute('data-api-group') !== tab);
+          });
+        });
+      });
+
+      // Eventos do Caçador IA (Ao Vivo)
+      const hunterForm = document.getElementById('hunter-form');
+      const hunterInput = document.getElementById('hunter-input');
+      const hunterSubmit = document.getElementById('hunter-submit-btn');
+
+      async function runHunterSearch(query) {
+        if (!query.trim()) return;
+        appendHunterMessage('user', query);
+        hunterInput.value = '';
+        hunterSubmit.disabled = true;
+        hunterSubmit.textContent = '⏳ Buscando na web...';
+
+        try {
+          const result = await callGeminiHunter(query);
+          const links = extractLinksFromText(result.text, result.sources);
+          appendHunterMessage('ai', formatMarkdownBasic(result.text), links);
+        } catch (err) {
+          appendHunterMessage('ai', '<span class="text-rose-400">Não foi possível conectar à busca agora. Verifique sua conexão ou tente novamente em instantes.</span>');
+        } finally {
+          hunterSubmit.disabled = false;
+          hunterSubmit.textContent = '🔍 Caçar Agora';
+        }
+      }
+
+      hunterForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        runHunterSearch(hunterInput.value);
+      });
+
+      document.querySelectorAll('.hunter-preset').forEach(btn => {
+        btn.addEventListener('click', () => runHunterSearch(btn.getAttribute('data-prompt')));
+      });
+
+      document.getElementById('clear-chat-btn').addEventListener('click', () => {
+        document.getElementById('hunter-messages').innerHTML = '';
+        showToast('Histórico do chat limpo.');
+      });
+
+      // Salvar oportunidade descoberta pelo Caçador IA
+      document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('save-discovered-btn')) {
+          const url = e.target.getAttribute('data-save-url');
+          const title = e.target.getAttribute('data-save-title');
+          appState.customOpps.unshift({ title, url, note: 'Descoberto via Caçador IA Ao Vivo' });
+          persistState();
+          showToast(`"${title}" salvo na aba Importar/Salvos!`);
+        }
+      });
+
+      // Eventos do Rastreador Financeiro USD -> BRL
+      document.getElementById('earning-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const platform = document.getElementById('earn-platform').value.trim();
+        const amount = parseFloat(document.getElementById('earn-amount').value);
+        const method = document.getElementById('earn-method').value;
+        const status = document.getElementById('earn-status').value;
+        if (!platform || isNaN(amount) || amount <= 0) return;
+
+        appState.earnings.unshift({
+          platform,
+          amount,
+          method,
+          status,
+          date: new Date().toLocaleDateString('pt-BR')
+        });
+        persistState();
+        e.target.reset();
+        showToast(`+$${amount.toFixed(2)} USD registrado!`);
+      });
+
+      document.getElementById('usd-brl-rate').addEventListener('change', (e) => {
+        appState.usdRate = parseFloat(e.target.value) || 5.75;
+        persistState();
+      });
+
+      document.getElementById('edit-goal-btn').addEventListener('click', () => {
+        const nextGoal = appState.monthlyGoal === 200 ? 500 : appState.monthlyGoal === 500 ? 1000 : 200;
+        appState.monthlyGoal = nextGoal;
+        persistState();
+        showToast(`Meta mensal ajustada para $${nextGoal}.00 USD`);
+      });
+
+      document.addEventListener('click', (e) => {
+        const statusIdx = e.target.getAttribute('data-cycle-status');
+        if (statusIdx !== null) {
+          const order = ['Pendente', 'Aprovado', 'Sacado'];
+          const cur = appState.earnings[statusIdx].status;
+          appState.earnings[statusIdx].status = order[(order.indexOf(cur) + 1) % order.length];
+          persistState();
+        }
+        const delIdx = e.target.getAttribute('data-del-earning');
+        if (delIdx !== null) {
+          appState.earnings.splice(Number(delIdx), 1);
+          persistState();
+          showToast('Registro removido.');
+        }
+        const delCustom = e.target.getAttribute('data-del-custom');
+        if (delCustom !== null) {
+          appState.customOpps.splice(Number(delCustom), 1);
+          persistState();
+          showToast('Item removido.');
+        }
+      });
+
+      // Importador de Relatório Diário (08:00 BRT)
+      document.getElementById('parse-report-btn').addEventListener('click', () => {
+        const rawText = document.getElementById('report-paste-area').value.trim();
+        if (!rawText) {
+          showToast('Cole o texto do relatório antes de extrair.');
+          return;
+        }
+        const links = extractLinksFromText(rawText);
+        if (links.length === 0) {
+          appState.customOpps.unshift({
+            title: `Nota de Relatório (${new Date().toLocaleDateString('pt-BR')})`,
+            url: 'https://gemini.google.com',
+            note: rawText.slice(0, 140) + '...'
+          });
+          persistState();
+          showToast('Resumo salvo (nenhum link externo encontrado).');
+          return;
+        }
+
+        let added = 0;
+        links.forEach(l => {
+          if (!appState.customOpps.some(existing => existing.url === l.url)) {
+            appState.customOpps.unshift({
+              title: l.title,
+              url: l.url,
+              note: `Importado do relatório diário em ${new Date().toLocaleDateString('pt-BR')}`
+            });
+            added++;
+          }
+        });
+        persistState();
+        document.getElementById('report-paste-area').value = '';
+        showToast(`${added} nova(s) oportunidade(s) extraída(s) e salva(s)!`);
+      });
+
+      document.getElementById('clear-report-area').addEventListener('click', () => {
+        document.getElementById('report-paste-area').value = '';
+      });
+
+      // Relógio Brasília & Lembrete de Pico EUA/BR
+      function updateBrtClock() {
+        const now = new Date();
+        const brtStr = now.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+        const brtHour = Number(now.toLocaleTimeString('en-US', { timeZone: 'America/Sao_Paulo', hour12: false, hour: '2-digit' }));
+        document.getElementById('clock-brt').textContent = brtStr;
+
+        const badge = document.getElementById('peak-status-badge');
+        if (brtHour >= 11 && brtHour < 18) {
+          badge.textContent = '🔥 JANELA DE PICO ATIVA';
+          badge.className = 'px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+        } else {
+          badge.textContent = '⏳ Fora do pico (11h–18h)';
+          badge.className = 'px-3 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-400';
+        }
+      }
+      setInterval(updateBrtClock, 1000);
+      updateBrtClock();
+
+      document.getElementById('enable-browser-notif-btn').addEventListener('click', async () => {
+        if (!('Notification' in window)) {
+          showToast('Este navegador não suporta notificações.');
+          return;
+        }
+        const perm = await Notification.requestPermission();
+        if (perm === 'granted') {
+          new Notification('Caçador IA • Lembrete Ativado!', {
+            body: 'Você será lembrado de checar Respondent.io e dscout na janela de pico (11h–18h BRT).'
+          });
+          showToast('Notificações do navegador ativadas!');
+        } else {
+          showToast('Permissão de notificação negada no navegador.');
+        }
+      });
+
+      document.getElementById('reset-daily-routine').addEventListener('click', () => {
+        ['routine-0800', 'routine-1130', 'routine-1500', 'routine-1800'].forEach(k => delete appState.checked[k]);
+        persistState();
+        syncCheckboxesFromState();
+        showToast('Checklist diário resetado para hoje!');
+      });
+
+      // Backup & Restauração JSON
+      document.getElementById('export-json-btn').addEventListener('click', () => {
+        const blob = new Blob([JSON.stringify(appState, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `backup_cacador_ia_${new Date().toISOString().slice(0, 10)}.json`;
+        a.click();
+        showToast('Backup JSON baixado!');
+      });
+
+      document.getElementById('import-json-input').addEventListener('change', (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          try {
+            const imported = JSON.parse(ev.target.result);
+            if (imported && typeof imported === 'object') {
+              appState = { ...appState, ...imported };
+              persistState();
+              renderDossier();
+              showToast('Backup restaurado com sucesso!');
+            }
+          } catch (err) {
+            showToast('Arquivo JSON inválido.');
+          }
+        };
+        reader.readAsText(file);
+      });
+    });
+  </script>
+</body>
+</html>
